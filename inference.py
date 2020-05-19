@@ -34,8 +34,13 @@ class Network:
     and performs synchronous and asynchronous modes for the specified infer requests.
     """
 
-    def __init__(self):
-        ### TODO: Initialize any class variables desired ###
+    IE=None
+    net=None
+    exec_net=None
+
+    def __init__(self, model_xml):
+        self.IE=IECore()
+        self.net=IENetwork(model=model_xml,weights=model_xml.replace('xml','bin'))
 
     def load_model(self):
         ### TODO: Load the model ###
@@ -49,7 +54,7 @@ class Network:
         ### TODO: Return the shape of the input layer ###
         return
 
-    def exec_net(self):
+    def exec_inference(self):
         ### TODO: Start an asynchronous request ###
         ### TODO: Return any necessary information ###
         ### Note: You may need to update the function parameters. ###
