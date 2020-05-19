@@ -55,12 +55,11 @@ class Network:
         self.device=device_name
         if(self.__check_layers__()):
             print("All layers supported")
+            self.exec_net=self.IE.load_network(network=self.net,device_name=device_name,num_requests=1)
         else:
-            print("Found unsupported layer")
-        ### TODO: Add any necessary extensions ###
-        ### TODO: Return the loaded inference plugin ###
-        ### Note: You may need to update the function parameters. ###
-        return
+            sys.exit("Unsupported model layer found, can't continue")
+
+        #Using OpenVino V2020.1, no need for CPU extensions anymore
 
     def get_input_shape(self):
         ### TODO: Return the shape of the input layer ###
