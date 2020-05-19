@@ -37,14 +37,26 @@ class Network:
     IE=None
     net=None
     exec_net=None
+    device=None
 
     def __init__(self, model_xml):
         self.IE=IECore()
         self.net=IENetwork(model=model_xml,weights=model_xml.replace('xml','bin'))
 
-    def load_model(self):
-        ### TODO: Load the model ###
-        ### TODO: Check for supported layers ###
+    def __check_layers__(self):
+        layers_map = self.IE.query_network(network=self.net,device_name=self.device)
+        for layer in self.net.layers.keys():
+            if layers_map.get(layer, "none") == "none":
+                return False #Found unsupported layer
+        return True
+        
+
+    def load_model(self,device_name):
+        self.device=device_name
+        if(self.__check_layers__()):
+            print("All layers supported")
+        else:
+            print("Found unsupported layer")
         ### TODO: Add any necessary extensions ###
         ### TODO: Return the loaded inference plugin ###
         ### Note: You may need to update the function parameters. ###
