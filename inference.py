@@ -80,11 +80,8 @@ class Network:
         request_handle=self.exec_net.start_async(request_id=0, inputs=input_dict)
         return request_handle
 
-    def wait(self):
-        ### TODO: Wait for the request to be complete. ###
-        ### TODO: Return any necessary information ###
-        ### Note: You may need to update the function parameters. ###
-        return
+    def wait(self, request_handle):
+        return request_handle.wait()
 
     def get_output(self):
         ### TODO: Extract and return the output results
