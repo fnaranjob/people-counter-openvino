@@ -39,12 +39,13 @@ class Network:
     net=None
     exec_net=None
     device=None
-    input_dict=None #input dictionary ready for inference request
+    input_keys=[]
 
     def __init__(self, model_xml):
         self.IE=IECore()
         self.net=IENetwork(model=model_xml,weights=model_xml.replace('xml','bin'))
-        self.net_inputs={}
+        for key in self.net.inputs:
+            self.input_keys.append(key)
 
     def __check_layers__(self):
         layers_map = self.IE.query_network(network=self.net,device_name=self.device)
@@ -63,12 +64,14 @@ class Network:
 
         #Using OpenVino V2020.1, no need for CPU extensions anymore
 
+    def get_input_shape(self):
+        n,c,h,w = self.net.inputs[self.input_keys[1]].shape
+        return n,c,h,w
+
+
     def get_inputs(self, processed_image, height, width, scale):
         info_vec=np.array([[height,width,scale]]) #image info vector
-        input_keys=[]
-        for key in self.net.inputs:
-            input_keys.append(key)
-        input_dict={input_keys[0]:info_vec, input_keys[1]:processed_image}
+        input_dict={self.input_keys[0]:info_vec, self.input_keys[1]:processed_image}
         return input_dict
 
     def exec_inference(self):
