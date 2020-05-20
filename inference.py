@@ -31,15 +31,16 @@ from openvino.inference_engine import IENetwork, IECore
 class Network:
     """
     Load and configure inference plugins for the specified target devices 
-    and performs synchronous and asynchronous modes for the specified infer requests.
+    and perform asynchronous infer requests.
     Warning: To be used only with faster_rcnn_inception_v2 tensorflow model
+    code expects model with 2 inputs: image_info and image_tensor
     """
 
     IE=None
     net=None
     exec_net=None
     device=None
-    input_keys=[]
+    input_keys=[] #names of the model inputs for inference request
 
     def __init__(self, model_xml):
         self.IE=IECore()
@@ -70,15 +71,14 @@ class Network:
 
 
     def get_inputs(self, processed_image, height, width, scale):
-        info_vec=np.array([[height,width,scale]]) #image info vector
+        #image info vector
+        info_vec=np.array([[height,width,scale]]) 
         input_dict={self.input_keys[0]:info_vec, self.input_keys[1]:processed_image}
         return input_dict
 
-    def exec_inference(self):
-        ### TODO: Start an asynchronous request ###
-        ### TODO: Return any necessary information ###
-        ### Note: You may need to update the function parameters. ###
-        return
+    def exec_inference(self, input_dict):
+        request_handle=self.exec_net.start_async(request_id=0, inputs=input_dict)
+        return request_handle
 
     def wait(self):
         ### TODO: Wait for the request to be complete. ###
