@@ -34,6 +34,7 @@ class Network:
     and perform asynchronous infer requests.
     Warning: To be used only with faster_rcnn_inception_v2 tensorflow model
     code expects model with 2 inputs: image_info and image_tensor
+    output key to be used in the app is hardcoded
     """
 
     IE=None
@@ -83,7 +84,6 @@ class Network:
     def wait(self, request_handle):
         return request_handle.wait()
 
-    def get_output(self):
-        ### TODO: Extract and return the output results
-        ### Note: You may need to update the function parameters. ###
-        return
+    def get_output(self, request_handle):
+        output=np.squeeze(request_handle.outputs["detection_output"])
+        return output
