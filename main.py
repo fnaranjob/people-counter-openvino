@@ -41,9 +41,6 @@ MQTT_HOST = IPADDRESS
 MQTT_PORT = 3001
 MQTT_KEEPALIVE_INTERVAL = 60
 
-# Auxiliary vars
-INPUT_TYPE=None
-
 
 def build_argparser():
     """
@@ -93,8 +90,17 @@ def infer_on_stream(args, client):
     prob_threshold = args.prob_threshold
     infer_network.load_model(args.device)
 
-    
-    ### TODO: Handle the input stream ###
+ 
+    cap=cv2.VideoCapture(args.input)
+    if not cap.isOpened():
+            exit("Error: couldn't open input file")
+           
+    video_length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    input_width = int(cap.get(3))
+    input_height = int(cap.get(4))
+    print("Length: ",video_length)
+    print("Width: ",input_width)
+    print("Height: ",input_height)
 
     ### TODO: Loop until stream is over ###
 
