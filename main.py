@@ -32,6 +32,7 @@ import paho.mqtt.client as mqtt
 
 from argparse import ArgumentParser
 from inference import Network
+import utils
 
 # MQTT server environment variables
 HOSTNAME = socket.gethostname()
@@ -39,6 +40,9 @@ IPADDRESS = socket.gethostbyname(HOSTNAME)
 MQTT_HOST = IPADDRESS
 MQTT_PORT = 3001
 MQTT_KEEPALIVE_INTERVAL = 60
+
+# Auxiliary vars
+INPUT_TYPE=None
 
 
 def build_argparser():
@@ -84,13 +88,12 @@ def infer_on_stream(args, client):
     :param client: MQTT client
     :return: None
     """
-    # Initialise the class
-    infer_network = Network()
-    # Set Probability threshold for detections
+
+    infer_network = Network(args.model)
     prob_threshold = args.prob_threshold
+    infer_network.load_model(args.device)
 
-    ### TODO: Load the model through `infer_network` ###
-
+    
     ### TODO: Handle the input stream ###
 
     ### TODO: Loop until stream is over ###
