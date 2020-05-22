@@ -114,8 +114,7 @@ def infer_on_stream(args, client):
         input_dict=infer_network.get_inputs(processed_frame,h,w,SCALE)
         request_handle=infer_network.exec_inference(input_dict)
         infer_network.wait(request_handle)
-
-            ### TODO: Get the results of the inference request ###
+        output=infer_network.get_output(request_handle)
 
             ### TODO: Extract any desired stats from the results ###
 
