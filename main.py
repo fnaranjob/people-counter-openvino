@@ -95,17 +95,17 @@ def infer_on_stream(args, client):
     if not cap.isOpened():
             exit("Error: couldn't open input file")
            
-    video_length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    #video_length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     input_width = int(cap.get(3))
     input_height = int(cap.get(4))
-    print("Length: ",video_length)
-    print("Width: ",input_width)
-    print("Height: ",input_height)
+    frame_rate=cap.get(cv2.CAP_PROP_FPS)
 
     ### TODO: Loop until stream is over ###
+    while True:
+        ret, frame = cap.read()
 
-        ### TODO: Read from the video capture ###
-
+        if not ret:
+            break
         ### TODO: Pre-process the image as needed ###
 
         ### TODO: Start asynchronous inference for specified request ###
