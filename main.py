@@ -43,6 +43,7 @@ MQTT_KEEPALIVE_INTERVAL = 60
 
 # Misc constants
 SCALE=1 #needed for input 1 (info vector)
+FILTER_COUNT=5 #a person needs to remain detected for at least FILTER_COUNT frames to be considered present in the frame
 
 
 def build_argparser():
@@ -98,12 +99,21 @@ def infer_on_stream(args, client):
     if not cap.isOpened():
             exit("Error: couldn't open input file")
            
-    #video_length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     input_width = int(cap.get(3))
     input_height = int(cap.get(4))
     frame_rate=cap.get(cv2.CAP_PROP_FPS)
+    frame_count=0
 
-    ### TODO: Loop until stream is over ###
+    #stats vars
+    current_people_before=0
+    current_people_now=0
+    current_people_buffer=0
+    total_people_count=0
+    time_in_frame=0.0 #time the current detected person has stayed so far [sec]
+    total_times=[0.0] #list of total time in frame for all people detected so far
+    average_time=0.0 #average time in frame for all people detected so far
+    new_person_detected=False
+
     while True:
         ret, frame = cap.read()
 
@@ -116,7 +126,28 @@ def infer_on_stream(args, client):
         infer_network.wait(request_handle)
         output=infer_network.get_output(request_handle)
         boxes=utils.process_output(output,args.prob_threshold,input_width,input_height)
-        print(boxes)
+    
+        frame_count=frame_count+1        
+        current_people_now=len(boxes)
+        
+        if (current_people_now != current_people_before):
+            current_people_buffer=current_people_buffer+1
+            new_person_detected=False
+
+        if current_people_buffer == FILTER_COUNT:
+            current_people_before = current_people_now
+            current_people_buffer = 0
+
+            if current_people_now != 0: #a new person was detected
+                total_people_count=total_people_count+1
+                new_person_detected=True
+            else: #no detections on frame anymore, store time person was in frame
+                total_times.append(time_in_frame)
+                average_time=sum(total_times)/total_people_count
+                time_in_frame=0
+        
+        if(new_person_detected):
+            time_in_frame = time_in_frame + 1/frame_rate
 
             ### TODO: Calculate and send relevant information on ###
             ### current_count, total_count and duration to the MQTT server ###
