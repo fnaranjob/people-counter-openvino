@@ -115,8 +115,8 @@ def infer_on_stream(args, client):
         request_handle=infer_network.exec_inference(input_dict)
         infer_network.wait(request_handle)
         output=infer_network.get_output(request_handle)
-
-            ### TODO: Extract any desired stats from the results ###
+        boxes=utils.process_output(output,args.prob_threshold,input_width,input_height)
+        print(boxes)
 
             ### TODO: Calculate and send relevant information on ###
             ### current_count, total_count and duration to the MQTT server ###
