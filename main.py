@@ -19,7 +19,6 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-
 import os
 import sys
 import time
@@ -42,9 +41,13 @@ MQTT_PORT = 3001
 MQTT_KEEPALIVE_INTERVAL = 60
 
 # Misc constants
-SCALE=1 #needed for input 1 (info vector)
+SCALE=1 #needed for input 1 (image info vector)
 FILTER_COUNT=5 #a person needs to remain detected for at least FILTER_COUNT frames to be considered present in the frame
-
+BOX_COLORS = [(255,0,0),(0,255,0),(0,0,255),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(128,0,0),(0,128,0),(0,0,128)]
+LINE_THICKNESS = 1 #px
+FONT_THICKNESS = 1
+FONT = cv2.FONT_HERSHEY_SIMPLEX
+FONT_SCALE = 0.5
 
 def build_argparser():
     """
@@ -74,9 +77,10 @@ def build_argparser():
 
 
 def connect_mqtt():
-    ### TODO: Connect to the MQTT client ###
-    client = None
 
+    client = mqtt.Client()
+    client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
+    client.loop_start()
     return client
 
 
@@ -89,7 +93,7 @@ def infer_on_stream(args, client):
     :param client: MQTT client
     :return: None
     """
-
+    mqtt_client=connect_mqtt()
     infer_network = Network(args.model)
     prob_threshold = args.prob_threshold
     infer_network.load_model(args.device)
@@ -157,6 +161,9 @@ def infer_on_stream(args, client):
         ### TODO: Send the frame to the FFMPEG server ###
 
         ### TODO: Write an output image if `single_image_mode` ###
+    cap.release()
+    client.loop_stop()
+    client.disconnect()
 
 
 def main():
