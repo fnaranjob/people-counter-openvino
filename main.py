@@ -90,6 +90,7 @@ def infer_on_stream(args, client):
     prob_threshold = args.prob_threshold
     infer_network.load_model(args.device)
 
+    n,c,h,w = infer_network.get_input_shape()
  
     cap=cv2.VideoCapture(args.input)
     if not cap.isOpened():
@@ -106,7 +107,8 @@ def infer_on_stream(args, client):
 
         if not ret:
             break
-        ### TODO: Pre-process the image as needed ###
+
+        processed_frame=utils.process_input(frame, h, w)
 
         ### TODO: Start asynchronous inference for specified request ###
 
