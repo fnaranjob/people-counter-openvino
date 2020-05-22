@@ -41,6 +41,9 @@ MQTT_HOST = IPADDRESS
 MQTT_PORT = 3001
 MQTT_KEEPALIVE_INTERVAL = 60
 
+# Misc constants
+SCALE=1 #needed for input 1 (info vector)
+
 
 def build_argparser():
     """
@@ -89,7 +92,6 @@ def infer_on_stream(args, client):
     infer_network = Network(args.model)
     prob_threshold = args.prob_threshold
     infer_network.load_model(args.device)
-
     n,c,h,w = infer_network.get_input_shape()
  
     cap=cv2.VideoCapture(args.input)
@@ -109,10 +111,9 @@ def infer_on_stream(args, client):
             break
 
         processed_frame=utils.process_input(frame, h, w)
-
-        ### TODO: Start asynchronous inference for specified request ###
-
-        ### TODO: Wait for the result ###
+        input_dict=infer_network.get_inputs(processed_frame,h,w,SCALE)
+        request_handle=infer_network.exec_inference(input_dict)
+        infer_network.wait(request_handle)
 
             ### TODO: Get the results of the inference request ###
 
