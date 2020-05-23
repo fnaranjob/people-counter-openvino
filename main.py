@@ -165,9 +165,6 @@ def infer_on_stream(args, client):
             utils.draw_results(frame, boxes, current_people_now, -1, -1, -1,inference_time)
             cv2.imwrite('output.jpg',frame)
 
-        
-        
-        ### TODO: Write an output image if `single_image_mode` ###
     cap.release()
     client.loop_stop()
     client.disconnect()
