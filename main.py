@@ -119,6 +119,7 @@ def infer_on_stream(args, client):
         if not ret:
             break
 
+        start_time=time.time()
         processed_frame=utils.process_input(frame, h, w)
         input_dict=infer_network.get_inputs(processed_frame,h,w,SCALE)
         request_handle=infer_network.exec_inference(input_dict)
@@ -148,11 +149,12 @@ def infer_on_stream(args, client):
         if(new_person_detected):
             time_in_frame = time_in_frame + 1/frame_rate
 
-        utils.draw_results(frame, boxes, current_people_before, total_people_count, time_in_frame, average_time)
+        inference_time=int((time.time()-start_time)*1000.0)
+        utils.draw_results(frame, boxes, current_people_before, total_people_count, time_in_frame, average_time,inference_time)
 
         #cv2.imshow("Results",frame)
         #cv2.waitKey(0)
-        #print(frame_count)
+
 
             ### TODO: Calculate and send relevant information on ###
             ### current_count, total_count and duration to the MQTT server ###
