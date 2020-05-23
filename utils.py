@@ -32,9 +32,11 @@ def draw_results(image, boxes, people_in_frame, total_people_count, time_in_fram
 	if len(boxes)>=0:
 		for box in boxes:
 			cv2.rectangle(image,box['pt1'],box['pt2'],BOX_COLORS[i],LINE_THICKNESS)
+			i=i+1
 
-	cv2.putText(image, "People in frame: %d"%people_in_frame, (20,30), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
-	cv2.putText(image, "Total people counted: %d"%total_people_count, (20,55), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
-	cv2.putText(image, "Current person time: %.1f [sec]"%time_in_frame, (20,80), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
-	cv2.putText(image, "Average time in frame: %.1f [sec]"%average_time, (20,105), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
-	cv2.putText(image, "Inference time: %d [msec]"%inference_time, (20,130), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
+	if total_people_count!=-1: #video mode
+		cv2.putText(image, "People in frame: %d"%people_in_frame, (20,30), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
+		cv2.putText(image, "Total people counted: %d"%total_people_count, (20,55), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
+		cv2.putText(image, "Current person time: %.1f [sec]"%time_in_frame, (20,80), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
+		cv2.putText(image, "Average time in frame: %.1f [sec]"%average_time, (20,105), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
+		cv2.putText(image, "Inference time: %d [msec]"%inference_time, (20,130), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)

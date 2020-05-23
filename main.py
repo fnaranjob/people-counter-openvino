@@ -97,7 +97,8 @@ def infer_on_stream(args, client):
     cap=cv2.VideoCapture(args.input)
     if not cap.isOpened():
             exit("Error: couldn't open input file")
-           
+    
+    video_length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))       
     input_width = int(cap.get(3))
     input_height = int(cap.get(4))
     frame_rate=cap.get(cv2.CAP_PROP_FPS)
@@ -126,38 +127,45 @@ def infer_on_stream(args, client):
         infer_network.wait(request_handle)
         output=infer_network.get_output(request_handle)
         boxes=utils.process_output(output,args.prob_threshold,input_width,input_height)
-
+        inference_time=int((time.time()-start_time)*1000.0)
         frame_count=frame_count+1        
         current_people_now=len(boxes)
+
+        if video_length!=1: #working with video
+            
+            if (current_people_now != current_people_before):
+                current_people_buffer=current_people_buffer+1
+                new_person_detected=False
+
+            if current_people_buffer == FILTER_COUNT:
+                current_people_before = current_people_now
+                current_people_buffer = 0
+
+                if current_people_now != 0: #a new person was detected
+                    total_people_count=total_people_count+1
+                    mqtt_client.publish("person",json.dumps({"count": current_people_before}))
+                    #mqtt_client.publish("person",json.dumps({"total": total_people_count}))
+                    new_person_detected=True
+                else: #no detections on frame anymore, store time person was in frame
+                    total_times.append(time_in_frame)
+                    mqtt_client.publish("person/duration",json.dumps({"duration": time_in_frame}))
+                    mqtt_client.publish("person",json.dumps({"count": 0}))
+                    average_time=sum(total_times)/total_people_count
+                    time_in_frame=0
+            
+            if(new_person_detected):
+                time_in_frame = time_in_frame + 1/frame_rate
+
+            
+            utils.draw_results(frame, boxes, current_people_before, total_people_count, time_in_frame, average_time,inference_time)
+            sys.stdout.buffer.write(frame)
+            sys.stdout.flush()
+
+        else: #working with a single image
+            utils.draw_results(frame, boxes, current_people_now, -1, -1, -1,inference_time)
+            cv2.imwrite('output.jpg',frame)
+
         
-        if (current_people_now != current_people_before):
-            current_people_buffer=current_people_buffer+1
-            new_person_detected=False
-
-        if current_people_buffer == FILTER_COUNT:
-            current_people_before = current_people_now
-            current_people_buffer = 0
-
-            if current_people_now != 0: #a new person was detected
-                total_people_count=total_people_count+1
-                mqtt_client.publish("person",json.dumps({"count": current_people_before}))
-                #mqtt_client.publish("person",json.dumps({"total": total_people_count}))
-                new_person_detected=True
-            else: #no detections on frame anymore, store time person was in frame
-                total_times.append(time_in_frame)
-                mqtt_client.publish("person/duration",json.dumps({"duration": time_in_frame}))
-                mqtt_client.publish("person",json.dumps({"count": 0}))
-                average_time=sum(total_times)/total_people_count
-                time_in_frame=0
-        
-        if(new_person_detected):
-            time_in_frame = time_in_frame + 1/frame_rate
-
-        inference_time=int((time.time()-start_time)*1000.0)
-        utils.draw_results(frame, boxes, current_people_before, total_people_count, time_in_frame, average_time,inference_time)
-
-        sys.stdout.buffer.write(frame)
-        sys.stdout.flush()
         
         ### TODO: Write an output image if `single_image_mode` ###
     cap.release()
