@@ -154,12 +154,9 @@ def infer_on_stream(args, client):
 
         #cv2.imshow("Results",frame)
         #cv2.waitKey(0)
-
-
-            ### TODO: Calculate and send relevant information on ###
-            ### current_count, total_count and duration to the MQTT server ###
-            ### Topic "person": keys of "count" and "total" ###
-            ### Topic "person/duration": key of "duration" ###
+        mqtt_client.publish("person",json.dumps({"count": current_people_before}))
+        mqtt_client.publish("person",json.dumps({"total": total_people_count}))
+        mqtt_client.publish("person/duration",json.dumps({"duration": time_in_frame}))
 
         ### TODO: Send the frame to the FFMPEG server ###
 
