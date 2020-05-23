@@ -156,9 +156,9 @@ def infer_on_stream(args, client):
         inference_time=int((time.time()-start_time)*1000.0)
         utils.draw_results(frame, boxes, current_people_before, total_people_count, time_in_frame, average_time,inference_time)
 
-
-        ### TODO: Send the frame to the FFMPEG server ###
-
+        sys.stdout.buffer.write(frame)
+        sys.stdout.flush()
+        
         ### TODO: Write an output image if `single_image_mode` ###
     cap.release()
     client.loop_stop()
