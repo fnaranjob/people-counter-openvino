@@ -140,9 +140,13 @@ def infer_on_stream(args, client):
 
             if current_people_now != 0: #a new person was detected
                 total_people_count=total_people_count+1
+                mqtt_client.publish("person",json.dumps({"count": current_people_before}))
+                #mqtt_client.publish("person",json.dumps({"total": total_people_count}))
                 new_person_detected=True
             else: #no detections on frame anymore, store time person was in frame
                 total_times.append(time_in_frame)
+                mqtt_client.publish("person/duration",json.dumps({"duration": time_in_frame}))
+                mqtt_client.publish("person",json.dumps({"count": 0}))
                 average_time=sum(total_times)/total_people_count
                 time_in_frame=0
         
@@ -152,17 +156,11 @@ def infer_on_stream(args, client):
         inference_time=int((time.time()-start_time)*1000.0)
         utils.draw_results(frame, boxes, current_people_before, total_people_count, time_in_frame, average_time,inference_time)
 
-        #cv2.imshow("Results",frame)
-        #cv2.waitKey(0)
-        mqtt_client.publish("person",json.dumps({"count": current_people_before}))
-        mqtt_client.publish("person",json.dumps({"total": total_people_count}))
-        mqtt_client.publish("person/duration",json.dumps({"duration": time_in_frame}))
 
         ### TODO: Send the frame to the FFMPEG server ###
 
         ### TODO: Write an output image if `single_image_mode` ###
     cap.release()
-    #cv2.destroyAllWindows()
     client.loop_stop()
     client.disconnect()
 
