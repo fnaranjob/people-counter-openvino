@@ -10,11 +10,11 @@ OpenVino's model optimizer and Inference Engine support a variety of layer types
 
 To be able to work with custom layers, extensions need to be created both for the Model Optimizer and the Inference Engine
 
-####Model Optimizer extensions
+#### Model Optimizer extensions
 
 The model optimizer needs 2 extensions, a custom layer extractor that identifies and extracts the layer parameters, and a custom layer operation that specifies the layer's attributes and computes its output shape for every instance of the custom layer in the model
 
-####Inference engine extensions
+#### Inference engine extensions
 
 Extensions to work with custom layers are only supported for CPU and GPU devices
 
@@ -38,15 +38,15 @@ To be able to compare the original model with the IR representation that was ult
 
 Some of the potential use cases of the people counter app are:
 
-####Smart staff deployment at crowded shops
+#### Smart staff deployment at crowded shops
 
 Large crowded businesses like supermarkets and banks could benefit from an AI enabled people counting app that can alert the staff if there is a sudden spike in the amount of people entering the shop, stats could be gathered and presented timely so that the store staff can be deployed fast and large queues can be reduced.
 
-####Customer behaviour stats for marketing purposes
+#### Customer behaviour stats for marketing purposes
 
 AI enabled people couting apps can be used at retail stores to gather statistics about customer behaviour that later can help the marketing team optimize placement of products, store layout, etc.
 
-####Social distancing alarm
+#### Social distancing alarm
 
 COVID-19 made it very important for people to keep some distance, the people counting app can effectively rise alarms in case too many people are too close, this can be deployed at normally crowded places like airports, stores, banks, parks, etc.
 
