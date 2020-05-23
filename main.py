@@ -43,11 +43,6 @@ MQTT_KEEPALIVE_INTERVAL = 60
 # Misc constants
 SCALE=1 #needed for input 1 (image info vector)
 FILTER_COUNT=5 #a person needs to remain detected for at least FILTER_COUNT frames to be considered present in the frame
-BOX_COLORS = [(255,0,0),(0,255,0),(0,0,255),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(128,0,0),(0,128,0),(0,0,128)]
-LINE_THICKNESS = 1 #px
-FONT_THICKNESS = 1
-FONT = cv2.FONT_HERSHEY_SIMPLEX
-FONT_SCALE = 0.5
 
 def build_argparser():
     """
@@ -130,7 +125,7 @@ def infer_on_stream(args, client):
         infer_network.wait(request_handle)
         output=infer_network.get_output(request_handle)
         boxes=utils.process_output(output,args.prob_threshold,input_width,input_height)
-    
+
         frame_count=frame_count+1        
         current_people_now=len(boxes)
         
@@ -153,6 +148,12 @@ def infer_on_stream(args, client):
         if(new_person_detected):
             time_in_frame = time_in_frame + 1/frame_rate
 
+        utils.draw_results(frame, boxes, current_people_before, total_people_count, time_in_frame, average_time)
+
+        #cv2.imshow("Results",frame)
+        #cv2.waitKey(0)
+        #print(frame_count)
+
             ### TODO: Calculate and send relevant information on ###
             ### current_count, total_count and duration to the MQTT server ###
             ### Topic "person": keys of "count" and "total" ###
@@ -162,6 +163,7 @@ def infer_on_stream(args, client):
 
         ### TODO: Write an output image if `single_image_mode` ###
     cap.release()
+    #cv2.destroyAllWindows()
     client.loop_stop()
     client.disconnect()
 

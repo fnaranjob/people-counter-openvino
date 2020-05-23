@@ -1,6 +1,13 @@
 import numpy as np
 import cv2
 
+#misc constants
+BOX_COLORS = [(255,0,0),(0,255,0),(0,0,255),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(128,0,0),(0,128,0),(0,0,128)]
+LINE_THICKNESS = 2
+FONT_THICKNESS = 1
+FONT = cv2.FONT_HERSHEY_SIMPLEX
+FONT_SCALE = 0.5
+
 def process_input(image, height, width):
 	processed_image = np.copy(image)
 	processed_image = cv2.resize(processed_image,(width,height))
@@ -19,3 +26,14 @@ def process_output(inference_output, threshold, input_width, input_height):
 		boxes.append(box)
 
 	return boxes
+
+def draw_results(image, boxes, people_in_frame, total_people_count, time_in_frame, average_time):
+	i=0
+	if len(boxes)>=0:
+		for box in boxes:
+			cv2.rectangle(image,box['pt1'],box['pt2'],BOX_COLORS[i],LINE_THICKNESS)
+
+	cv2.putText(image, "People in frame: %d"%people_in_frame, (20,30), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
+	cv2.putText(image, "Total people counted: %d"%total_people_count, (20,55), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
+	cv2.putText(image, "Current person time: %.1f"%time_in_frame, (20,80), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
+	cv2.putText(image, "Average time in frame: %.1f"%average_time, (20,105), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
