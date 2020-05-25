@@ -1,8 +1,23 @@
 # Project Write-Up
 
-This project's solution used the faster_rcnn_inception_v2 tensorflow model, trained with the coco dataset
+This project's solution used the faster_rcnn_inception_v2 tensorflow model, trained with the coco dataset, it was coded and tested locally using OpenVino v2020.1
 
 [model github repository here](https://github.com/opencv/open_model_zoo/blob/master/models/public/faster_rcnn_inception_v2_coco/faster_rcnn_inception_v2_coco.md) 
+
+Model was converted to intermediate representation for OpenVino using the Model Optimizer using the following command:
+
+	python3 /opt/intel/openvino/deployment_tools/model_optimizer/mo.py --input_model frozen_inference_graph.pb --output_dir ~/source/peopleDetector/ --reverse_input_channels --tensorflow_object_detection_api_pipeline_config pipeline.config --tensorflow_use_custom_operations_config /opt/intel/openvino/deployment_tools/model_optimizer/extensions/front/tf/faster_rcnn_support.json --input_shape [-1,577,1024,3] --data_type FP16
+
+
+Instructions on starting the web service in the README.md file, after the servers are running the app can be run with the following command:
+
+	 python3 main.py --model "./models/frozen_inference_graph_FP16.xml" --input **FILEPATH** -pt **PROB_THRESHOLD** -d **DEVICE** | ffmpeg -v warning -f rawvideo -pixel_format bgr24 -video_size 768x432 -framerate 24 -i - http://0.0.0.0:3004/fac.ffm
+
+where:
+
+* **FILEPATH** = path to input file, use openCV compatible files, if using a camera use "CAM"
+* **PROB_THRESHOLD** = detection threshold, tested with provided video file and -pt 0.9
+* **DEVICE**= device to be used for inference, tested with CPU, and MYRIAD plugins (MYRIAD is not compatible)
 
 ## Explaining Custom Layers
 
