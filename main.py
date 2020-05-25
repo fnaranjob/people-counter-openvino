@@ -123,7 +123,7 @@ def infer_on_stream(args, client):
         start_time=time.time()
         processed_frame=utils.process_input(frame, h, w)
         input_dict=infer_network.get_inputs(processed_frame,h,w,SCALE)
-        request_handle=infer_network.exec_inference(input_dict)
+        request_handle=infer_network.exec_inference(input_dict,0)
         infer_network.wait(request_handle)
         output=infer_network.get_output(request_handle)
         boxes=utils.process_output(output,args.prob_threshold,input_width,input_height)

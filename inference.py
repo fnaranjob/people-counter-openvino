@@ -79,8 +79,8 @@ class Network:
         input_dict={self.input_keys[0]:info_vec, self.input_keys[1]:processed_image}
         return input_dict
 
-    def exec_inference(self, input_dict):
-        request_handle=self.exec_net.start_async(request_id=0, inputs=input_dict)
+    def exec_inference(self, input_dict, req_id):
+        request_handle=self.exec_net.start_async(request_id=req_id, inputs=input_dict)
         return request_handle
 
     def wait(self, request_handle):
