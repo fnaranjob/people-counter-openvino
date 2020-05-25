@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import os
 
 #misc constants
 BOX_COLORS = [(255,0,0),(0,255,0),(0,0,255),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(128,0,0),(0,128,0),(0,0,128)]
@@ -40,3 +41,16 @@ def draw_results(image, boxes, people_in_frame, total_people_count, time_in_fram
 		cv2.putText(image, "Current person time: %.1f [sec]"%time_in_frame, (20,80), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
 		cv2.putText(image, "Average time in frame: %.1f [sec]"%average_time, (20,105), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
 		cv2.putText(image, "Inference time: %d [msec]"%inference_time, (20,130), FONT, FONT_SCALE, BOX_COLORS[0], FONT_THICKNESS)
+
+def validate_input(input_arg):
+	single_image_mode=False
+	if input_arg == 'CAM':
+		input_validated = 0
+	elif input_arg.endswith('.jpg') or input_arg.endswith('.bmp') :
+		single_image_mode = True
+		input_validated = input_arg
+	else:
+		input_validated = input_arg
+		assert os.path.isfile(input_arg), "file doesn't exist"
+
+	return input_validated, single_image_mode

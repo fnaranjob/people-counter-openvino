@@ -92,8 +92,9 @@ def infer_on_stream(args, client):
     infer_network = Network(args.model)
     infer_network.load_model(args.device)
     n,c,h,w = infer_network.get_input_shape()
- 
-    cap=cv2.VideoCapture(args.input)
+    input_validated, single_image_mode=utils.validate_input(args.input)
+
+    cap=cv2.VideoCapture(input_validated)
     if not cap.isOpened():
             exit("Error: couldn't open input file")
     
@@ -130,7 +131,7 @@ def infer_on_stream(args, client):
         frame_count=frame_count+1        
         current_people_now=len(boxes)
 
-        if video_length!=1: #working with video
+        if not single_image_mode: #working with video
             
             if (current_people_now != current_people_before):
                 current_people_buffer=current_people_buffer+1
@@ -143,7 +144,7 @@ def infer_on_stream(args, client):
                 if current_people_now != 0: #a new person was detected
                     total_people_count=total_people_count+1
                     mqtt_client.publish("person",json.dumps({"count": current_people_before}))
-                    #mqtt_client.publish("person",json.dumps({"total": total_people_count}))
+                    #mqtt_client.publish("person",json.dumps({"total": total_people_count})) removed it, UI calculates it
                     new_person_detected=True
                 else: #no detections on frame anymore, store time person was in frame
                     total_times.append(time_in_frame)
