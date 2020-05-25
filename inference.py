@@ -50,11 +50,13 @@ class Network:
             self.input_keys.append(key)
 
     def __check_layers__(self):
+        good_to_go = True
         layers_map = self.IE.query_network(network=self.net,device_name=self.device)
         for layer in self.net.layers.keys():
             if layers_map.get(layer, "none") == "none":
-                return False #Found unsupported layer
-        return True
+                sys.stderr.write("Unsupported layer: "+layer+"\n")
+                good_to_go=False
+        return good_to_go
         
 
     def load_model(self,device_name):
@@ -62,7 +64,7 @@ class Network:
         if(self.__check_layers__()):
             self.exec_net=self.IE.load_network(network=self.net,device_name=device_name,num_requests=1)
         else:
-            sys.exit("Unsupported model layer found, can't continue")
+            sys.exit("Unsupported layer found, can't continue")
 
         #Using OpenVino V2020.1, no need for CPU extensions anymore
 
