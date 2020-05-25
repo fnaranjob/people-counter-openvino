@@ -90,7 +90,6 @@ def infer_on_stream(args, client):
     """
     mqtt_client=connect_mqtt()
     infer_network = Network(args.model)
-    prob_threshold = args.prob_threshold
     infer_network.load_model(args.device)
     n,c,h,w = infer_network.get_input_shape()
  
