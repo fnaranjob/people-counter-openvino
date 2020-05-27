@@ -41,27 +41,27 @@ class Network:
     net=None
     exec_net=None
     device=None
-    input_keys=[] #names of the model inputs for inference request
 
     def __init__(self, model_xml):
         self.IE=IECore()
         self.net=IENetwork(model=model_xml,weights=model_xml.replace('xml','bin'))
-        for key in self.net.inputs:
-            self.input_keys.append(key)
 
-    def __check_layers__(self):
+    def __check_layers__(self,cpu_extension):
         good_to_go = True
         layers_map = self.IE.query_network(network=self.net,device_name=self.device)
         for layer in self.net.layers.keys():
             if layers_map.get(layer, "none") == "none":
-                sys.stderr.write("Unsupported layer: "+layer+"\n")
-                good_to_go=False
+                if cpu_extension and self.device=="CPU":
+                    sys.stderr.write("Found unsupported layer, adding extension\n")
+                    self.IE.add_extension(cpu_extension, self.device)
+                    break
+                else:
+                    good_to_go=False
         return good_to_go
-        
 
-    def load_model(self,device_name):
+    def load_model(self,device_name,cpu_extension):
         self.device=device_name
-        if(self.__check_layers__()):
+        if(self.__check_layers__(cpu_extension)):
             self.exec_net=self.IE.load_network(network=self.net,device_name=device_name,num_requests=1)
         else:
             sys.exit("Unsupported layer found, can't continue")
@@ -69,14 +69,14 @@ class Network:
         #Using OpenVino V2020.1, no need for CPU extensions anymore
 
     def get_input_shape(self):
-        n,c,h,w = self.net.inputs[self.input_keys[1]].shape
+        n,c,h,w = self.net.inputs['image_tensor'].shape
         return n,c,h,w
 
 
     def get_inputs(self, processed_image, height, width, scale):
         #image info vector
         info_vec=np.array([[height,width,scale]]) 
-        input_dict={self.input_keys[0]:info_vec, self.input_keys[1]:processed_image}
+        input_dict={'image_info':info_vec, 'image_tensor':processed_image}
         return input_dict
 
     def exec_inference(self, input_dict, req_id):

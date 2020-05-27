@@ -42,7 +42,7 @@ MQTT_KEEPALIVE_INTERVAL = 60
 
 # Misc constants
 SCALE=1 #needed for input 1 (image info vector)
-FILTER_COUNT=5 #a person needs to remain detected for at least FILTER_COUNT frames to be considered present in the frame
+FILTER_COUNT=6 #a person needs to remain detected for at least FILTER_COUNT frames to be considered present in the frame
 
 def build_argparser():
     """
@@ -90,7 +90,7 @@ def infer_on_stream(args, client):
     """
     mqtt_client=connect_mqtt()
     infer_network = Network(args.model)
-    infer_network.load_model(args.device)
+    infer_network.load_model(args.device,args.cpu_extension)
     n,c,h,w = infer_network.get_input_shape()
     input_validated, single_image_mode=utils.validate_input(args.input)
 
@@ -144,7 +144,7 @@ def infer_on_stream(args, client):
                 if current_people_now != 0: #a new person was detected
                     total_people_count=total_people_count+1
                     mqtt_client.publish("person",json.dumps({"count": current_people_before}))
-                    #mqtt_client.publish("person",json.dumps({"total": total_people_count})) removed it, UI calculates it
+                    #mqtt_client.publish("person",json.dumps({"total": total_people_count})) removed because UI calculates it
                     new_person_detected=True
                 else: #no detections on frame anymore, store time person was in frame
                     total_times.append(time_in_frame)
